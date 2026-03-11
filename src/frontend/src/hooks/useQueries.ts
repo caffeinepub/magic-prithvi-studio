@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalBlob, type MediaItem, type MediaType } from "../backend";
+import {
+  type Booking,
+  ExternalBlob,
+  type MediaItem,
+  type MediaType,
+} from "../backend";
 import { useActor } from "./useActor";
 
 export function useListMediaItems() {
@@ -21,6 +26,18 @@ export function useIsCallerAdmin() {
     queryFn: async () => {
       if (!actor) return false;
       return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useListBookings() {
+  const { actor, isFetching } = useActor();
+  return useQuery<Booking[]>({
+    queryKey: ["bookings"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listBookings();
     },
     enabled: !!actor && !isFetching,
   });

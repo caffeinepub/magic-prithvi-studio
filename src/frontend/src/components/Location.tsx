@@ -1,5 +1,6 @@
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin } from "lucide-react";
 import { motion } from "motion/react";
+import { SiWhatsapp } from "react-icons/si";
 
 export default function Location() {
   return (
@@ -64,18 +65,21 @@ export default function Location() {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-sm bg-gold/10 flex items-center justify-center shrink-0">
-                <Phone className="w-4 h-4 text-gold" />
+              <div className="w-10 h-10 rounded-sm bg-green-500/10 flex items-center justify-center shrink-0">
+                <SiWhatsapp className="w-4 h-4 text-green-500" />
               </div>
               <div>
                 <div className="font-body font-semibold text-foreground mb-1">
-                  Phone
+                  WhatsApp
                 </div>
                 <a
-                  href="tel:+919999999999"
-                  className="text-gold text-sm font-body hover:text-gold-glow transition-colors"
+                  href="https://wa.me/919091672627"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-500 text-sm font-body hover:text-green-400 transition-colors flex items-center gap-2"
                 >
-                  +91 99999 99999
+                  <SiWhatsapp className="w-3.5 h-3.5" />
+                  +91 90916 72627
                 </a>
               </div>
             </div>
@@ -89,10 +93,10 @@ export default function Location() {
                   Email
                 </div>
                 <a
-                  href="mailto:contact@magicprithvistudio.com"
+                  href="mailto:baraiprodip2@gmail.com"
                   className="text-gold text-sm font-body hover:text-gold-glow transition-colors"
                 >
-                  contact@magicprithvistudio.com
+                  baraiprodip2@gmail.com
                 </a>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   CloudUpload,
@@ -11,10 +12,13 @@ import {
   Loader2,
   LogIn,
   LogOut,
+  Mail,
+  MessageSquare,
   Music2,
   ShieldAlert,
   Trash2,
   Upload,
+  User,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
@@ -25,6 +29,7 @@ import {
   useAddMediaItem,
   useDeleteMediaItem,
   useIsCallerAdmin,
+  useListBookings,
   useListMediaItems,
 } from "../hooks/useQueries";
 
@@ -37,6 +42,7 @@ export default function Admin() {
 
   const { data: isAdmin, isLoading: checkingAdmin } = useIsCallerAdmin();
   const { data: mediaItems, isLoading: loadingMedia } = useListMediaItems();
+  const { data: bookings, isLoading: loadingBookings } = useListBookings();
   const addMedia = useAddMediaItem();
   const deleteMedia = useDeleteMediaItem();
 
@@ -205,240 +211,343 @@ export default function Admin() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-12"
+            className="space-y-8"
           >
             <div>
               <h1 className="font-display text-3xl font-bold mb-1">
-                Studio <span className="gold-gradient">Gallery Manager</span>
+                Studio <span className="gold-gradient">Admin Panel</span>
               </h1>
               <p className="text-muted-foreground text-sm font-body">
-                Upload and manage photos and videos.
+                Manage gallery media and view customer messages.
               </p>
             </div>
 
-            {/* Upload section */}
-            <section className="p-6 bg-card border border-border rounded-sm space-y-5">
-              <h2 className="font-display text-xl font-semibold text-foreground">
-                Upload Media
-              </h2>
+            <Tabs defaultValue="gallery">
+              <TabsList className="mb-6 bg-card border border-border">
+                <TabsTrigger
+                  value="gallery"
+                  data-ocid="admin.gallery.tab"
+                  className="font-body text-sm data-[state=active]:bg-gold data-[state=active]:text-background"
+                >
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Gallery
+                </TabsTrigger>
+                <TabsTrigger
+                  value="messages"
+                  data-ocid="admin.messages.tab"
+                  className="font-body text-sm data-[state=active]:bg-gold data-[state=active]:text-background"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Messages
+                  {bookings && bookings.length > 0 && (
+                    <span className="ml-2 bg-gold text-background text-[10px] font-bold rounded-full w-4 h-4 inline-flex items-center justify-center">
+                      {bookings.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
 
-              {/* Dropzone - label wrapping hidden input for a11y */}
-              <label
-                data-ocid="admin.dropzone"
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-sm p-10 flex flex-col items-center justify-center cursor-pointer transition-colors ${
-                  dragOver
-                    ? "border-gold bg-gold/5"
-                    : file
-                      ? "border-gold/60 bg-gold/5"
-                      : "border-border hover:border-gold/40"
-                }`}
-              >
-                <CloudUpload
-                  className={`w-10 h-10 mb-3 ${file ? "text-gold" : "text-muted-foreground"}`}
-                />
-                {file ? (
-                  <div className="text-center">
-                    <p className="font-body text-sm text-foreground font-medium">
-                      {file.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                    {file.type.startsWith("video/") ? (
-                      <span className="inline-flex items-center gap-1 mt-2 text-xs text-gold font-body">
-                        <Film className="w-3 h-3" /> Video detected
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 mt-2 text-xs text-gold font-body">
-                        <ImageIcon className="w-3 h-3" /> Photo detected
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <>
-                    <p className="font-body text-sm text-muted-foreground text-center">
-                      Drag & drop a photo or video here,
-                    </p>
-                    <p className="font-body text-sm text-muted-foreground">
-                      or click to browse
-                    </p>
-                  </>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,video/*"
-                  className="hidden"
-                  data-ocid="admin.upload_button"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) handleFile(e.target.files[0]);
-                  }}
-                />
-              </label>
+              {/* Gallery Tab */}
+              <TabsContent value="gallery" className="space-y-10">
+                {/* Upload section */}
+                <section className="p-6 bg-card border border-border rounded-sm space-y-5">
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    Upload Media
+                  </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="media-title"
-                    className="text-xs uppercase tracking-wider text-muted-foreground font-body"
+                  <label
+                    data-ocid="admin.dropzone"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-sm p-10 flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                      dragOver
+                        ? "border-gold bg-gold/5"
+                        : file
+                          ? "border-gold/60 bg-gold/5"
+                          : "border-border hover:border-gold/40"
+                    }`}
                   >
-                    Title *
-                  </Label>
-                  <Input
-                    id="media-title"
-                    data-ocid="admin.input"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Recording Session — July 2025"
-                    className="bg-background border-border focus:border-gold"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="media-desc"
-                    className="text-xs uppercase tracking-wider text-muted-foreground font-body"
-                  >
-                    Description
-                  </Label>
-                  <Textarea
-                    id="media-desc"
-                    data-ocid="admin.textarea"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Short description (optional)"
-                    rows={2}
-                    className="bg-background border-border focus:border-gold resize-none"
-                  />
-                </div>
-              </div>
-
-              {addMedia.isPending && (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground font-body">
-                    <span>Uploading…</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} className="h-1.5" />
-                </div>
-              )}
-
-              {addMedia.isSuccess && (
-                <div
-                  data-ocid="admin.success_state"
-                  className="text-xs text-green-400 font-body"
-                >
-                  ✓ Upload complete!
-                </div>
-              )}
-
-              {addMedia.isError && (
-                <div
-                  data-ocid="admin.error_state"
-                  className="text-xs text-destructive font-body"
-                >
-                  Upload failed. Please try again.
-                </div>
-              )}
-
-              <Button
-                data-ocid="admin.submit_button"
-                onClick={handleUpload}
-                disabled={addMedia.isPending || !file || !title.trim()}
-                className="bg-gold text-background hover:opacity-90 font-body font-semibold"
-              >
-                {addMedia.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading…
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" /> Upload Media
-                  </>
-                )}
-              </Button>
-            </section>
-
-            {/* Media list */}
-            <section>
-              <h2 className="font-display text-xl font-semibold mb-6">
-                All Media
-              </h2>
-
-              {loadingMedia && (
-                <div
-                  data-ocid="admin.loading_state"
-                  className="grid grid-cols-2 sm:grid-cols-3 gap-4"
-                >
-                  {SKELETON_KEYS.map((k) => (
-                    <Skeleton
-                      key={k}
-                      className="aspect-square rounded-sm bg-card"
+                    <CloudUpload
+                      className={`w-10 h-10 mb-3 ${file ? "text-gold" : "text-muted-foreground"}`}
                     />
-                  ))}
-                </div>
-              )}
-
-              {!loadingMedia && (!mediaItems || mediaItems.length === 0) && (
-                <div className="py-16 text-center border border-dashed border-border rounded-sm">
-                  <p className="text-muted-foreground text-sm font-body">
-                    No media uploaded yet.
-                  </p>
-                </div>
-              )}
-
-              {!loadingMedia && mediaItems && mediaItems.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {mediaItems.map((item, idx) => {
-                    const url = item.blob.getDirectURL();
-                    return (
-                      <div
-                        key={String(item.id)}
-                        className="group relative rounded-sm overflow-hidden border border-border bg-card"
-                      >
-                        {item.mediaType === MediaType.photo ? (
-                          <img
-                            src={url}
-                            alt={item.title}
-                            className="w-full aspect-square object-cover"
-                          />
+                    {file ? (
+                      <div className="text-center">
+                        <p className="font-body text-sm text-foreground font-medium">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                        {file.type.startsWith("video/") ? (
+                          <span className="inline-flex items-center gap-1 mt-2 text-xs text-gold font-body">
+                            <Film className="w-3 h-3" /> Video detected
+                          </span>
                         ) : (
-                          <div className="aspect-square bg-muted flex items-center justify-center">
-                            <Film className="w-8 h-8 text-gold" />
-                          </div>
+                          <span className="inline-flex items-center gap-1 mt-2 text-xs text-gold font-body">
+                            <ImageIcon className="w-3 h-3" /> Photo detected
+                          </span>
                         )}
-                        <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
-                          <p className="text-xs text-foreground font-body text-center line-clamp-2">
-                            {item.title}
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            data-ocid={`admin.delete_button.${idx + 1}`}
-                            onClick={() => handleDelete(item.id)}
-                            disabled={deleteMedia.isPending}
-                            className="text-xs h-7 px-3"
-                          >
-                            {deleteMedia.isPending ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <>
-                                <Trash2 className="w-3 h-3 mr-1" /> Delete
-                              </>
-                            )}
-                          </Button>
-                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+                    ) : (
+                      <>
+                        <p className="font-body text-sm text-muted-foreground text-center">
+                          Drag & drop a photo or video here,
+                        </p>
+                        <p className="font-body text-sm text-muted-foreground">
+                          or click to browse
+                        </p>
+                      </>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      className="hidden"
+                      data-ocid="admin.upload_button"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleFile(e.target.files[0]);
+                      }}
+                    />
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="media-title"
+                        className="text-xs uppercase tracking-wider text-muted-foreground font-body"
+                      >
+                        Title *
+                      </Label>
+                      <Input
+                        id="media-title"
+                        data-ocid="admin.input"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g. Recording Session — July 2025"
+                        className="bg-background border-border focus:border-gold"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="media-desc"
+                        className="text-xs uppercase tracking-wider text-muted-foreground font-body"
+                      >
+                        Description
+                      </Label>
+                      <Textarea
+                        id="media-desc"
+                        data-ocid="admin.textarea"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Short description (optional)"
+                        rows={2}
+                        className="bg-background border-border focus:border-gold resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  {addMedia.isPending && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground font-body">
+                        <span>Uploading…</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <Progress value={uploadProgress} className="h-1.5" />
+                    </div>
+                  )}
+
+                  {addMedia.isSuccess && (
+                    <div
+                      data-ocid="admin.success_state"
+                      className="text-xs text-green-400 font-body"
+                    >
+                      ✓ Upload complete!
+                    </div>
+                  )}
+
+                  {addMedia.isError && (
+                    <div
+                      data-ocid="admin.error_state"
+                      className="text-xs text-destructive font-body"
+                    >
+                      Upload failed. Please try again.
+                    </div>
+                  )}
+
+                  <Button
+                    data-ocid="admin.submit_button"
+                    onClick={handleUpload}
+                    disabled={addMedia.isPending || !file || !title.trim()}
+                    className="bg-gold text-background hover:opacity-90 font-body font-semibold"
+                  >
+                    {addMedia.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                        Uploading…
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" /> Upload Media
+                      </>
+                    )}
+                  </Button>
+                </section>
+
+                {/* Media list */}
+                <section>
+                  <h2 className="font-display text-xl font-semibold mb-6">
+                    All Media
+                  </h2>
+
+                  {loadingMedia && (
+                    <div
+                      data-ocid="admin.loading_state"
+                      className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+                    >
+                      {SKELETON_KEYS.map((k) => (
+                        <Skeleton
+                          key={k}
+                          className="aspect-square rounded-sm bg-card"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {!loadingMedia &&
+                    (!mediaItems || mediaItems.length === 0) && (
+                      <div
+                        data-ocid="admin.media.empty_state"
+                        className="py-16 text-center border border-dashed border-border rounded-sm"
+                      >
+                        <p className="text-muted-foreground text-sm font-body">
+                          No media uploaded yet.
+                        </p>
+                      </div>
+                    )}
+
+                  {!loadingMedia && mediaItems && mediaItems.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {mediaItems.map((item, idx) => {
+                        const url = item.blob.getDirectURL();
+                        return (
+                          <div
+                            key={String(item.id)}
+                            className="group relative rounded-sm overflow-hidden border border-border bg-card"
+                          >
+                            {item.mediaType === MediaType.photo ? (
+                              <img
+                                src={url}
+                                alt={item.title}
+                                className="w-full aspect-square object-cover"
+                              />
+                            ) : (
+                              <div className="aspect-square bg-muted flex items-center justify-center">
+                                <Film className="w-8 h-8 text-gold" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                              <p className="text-xs text-foreground font-body text-center line-clamp-2">
+                                {item.title}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                data-ocid={`admin.delete_button.${idx + 1}`}
+                                onClick={() => handleDelete(item.id)}
+                                disabled={deleteMedia.isPending}
+                                className="text-xs h-7 px-3"
+                              >
+                                {deleteMedia.isPending ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Trash2 className="w-3 h-3 mr-1" /> Delete
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              </TabsContent>
+
+              {/* Messages Tab */}
+              <TabsContent value="messages">
+                <section>
+                  <h2 className="font-display text-xl font-semibold mb-6">
+                    Customer Messages
+                  </h2>
+
+                  {loadingBookings && (
+                    <div
+                      data-ocid="admin.messages.loading_state"
+                      className="space-y-3"
+                    >
+                      {["b1", "b2", "b3"].map((k) => (
+                        <Skeleton key={k} className="h-24 rounded-sm bg-card" />
+                      ))}
+                    </div>
+                  )}
+
+                  {!loadingBookings && (!bookings || bookings.length === 0) && (
+                    <div
+                      data-ocid="admin.messages.empty_state"
+                      className="py-20 text-center border border-dashed border-border rounded-sm"
+                    >
+                      <MessageSquare className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-muted-foreground text-sm font-body">
+                        No messages yet. Customer inquiries will appear here.
+                      </p>
+                    </div>
+                  )}
+
+                  {!loadingBookings && bookings && bookings.length > 0 && (
+                    <div className="space-y-4">
+                      {bookings.map((booking, idx) => (
+                        <div
+                          key={String(booking.id)}
+                          data-ocid={`admin.messages.item.${idx + 1}`}
+                          className="p-5 bg-card border border-border rounded-sm space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                                <User className="w-4 h-4 text-gold" />
+                              </div>
+                              <div>
+                                <p className="font-body font-semibold text-foreground text-sm">
+                                  {booking.name}
+                                </p>
+                                <a
+                                  href={`mailto:${booking.email}`}
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold transition-colors font-body"
+                                >
+                                  <Mail className="w-3 h-3" />
+                                  {booking.email}
+                                </a>
+                              </div>
+                            </div>
+                            <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-sm bg-gold/10 text-gold text-xs font-body font-medium">
+                              {booking.service}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-body leading-relaxed border-t border-border pt-3">
+                            {booking.message}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </TabsContent>
+            </Tabs>
           </motion.div>
         )}
       </main>
