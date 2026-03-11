@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/assets/fonts/PlayfairDisplay-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/assets/fonts/Sora-Variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    /* Deep dark + gold palette */
+    --background: 0.1 0 0;
+    --foreground: 0.93 0.02 80;
+    --card: 0.14 0.005 60;
+    --card-foreground: 0.93 0.02 80;
+    --popover: 0.14 0.005 60;
+    --popover-foreground: 0.93 0.02 80;
+    --primary: 0.78 0.15 75;
+    --primary-foreground: 0.1 0 0;
+    --secondary: 0.18 0.01 60;
+    --secondary-foreground: 0.93 0.02 80;
+    --muted: 0.18 0.01 60;
+    --muted-foreground: 0.55 0.04 75;
+    --accent: 0.65 0.18 75;
+    --accent-foreground: 0.1 0 0;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.28 0.04 75;
+    --input: 0.22 0.03 70;
+    --ring: 0.78 0.15 75;
+    --gold: 0.78 0.15 75;
+    --gold-dim: 0.55 0.1 75;
+    --gold-glow: 0.88 0.18 80;
+    --chart-1: 0.78 0.15 75;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+    --sidebar: 0.12 0.005 60;
+    --sidebar-foreground: 0.93 0.02 80;
+    --sidebar-primary: 0.78 0.15 75;
+    --sidebar-primary-foreground: 0.1 0 0;
+    --sidebar-accent: 0.18 0.01 60;
+    --sidebar-accent-foreground: 0.93 0.02 80;
+    --sidebar-border: 0.28 0.04 75;
+    --sidebar-ring: 0.78 0.15 75;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Sora', sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: oklch(var(--gold));
+  }
+  .text-gold-dim {
+    color: oklch(var(--gold-dim));
+  }
+  .bg-gold {
+    background-color: oklch(var(--gold));
+  }
+  .border-gold {
+    border-color: oklch(var(--gold));
+  }
+  .gold-gradient {
+    background: linear-gradient(135deg, oklch(var(--gold-glow)), oklch(var(--gold)), oklch(var(--gold-dim)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  .glow-gold {
+    box-shadow: 0 0 30px oklch(var(--gold) / 0.15), 0 0 60px oklch(var(--gold) / 0.07);
+  }
+  .section-pad {
+    @apply py-20 px-6 md:px-12 lg:px-24;
+  }
+}
